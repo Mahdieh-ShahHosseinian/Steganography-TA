@@ -24,7 +24,7 @@ public class Application {
         );
         sendNecessaryData(lsbEncoder, lsbDecoder);
 
-        System.out.println(lsbDecoder.recoveryProcess());
+        System.out.println("message recovered= " + lsbDecoder.recoveryProcess());
     }
 
     private static void sendNecessaryData(LSBEncoder lsbEncoder, LSBDecoder lsbDecoder) {

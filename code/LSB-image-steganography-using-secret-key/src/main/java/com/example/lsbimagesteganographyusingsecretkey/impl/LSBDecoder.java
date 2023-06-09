@@ -1,9 +1,5 @@
 package com.example.lsbimagesteganographyusingsecretkey.impl;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class LSBDecoder {
@@ -28,27 +24,6 @@ public class LSBDecoder {
     }
 
     public String recoveryProcess() throws IOException {
-        /* take stego-image */
-        File stegoImageFile = new File(stegoImageFilePath);
-        BufferedImage stegoImage = ImageIO.read(stegoImageFile);
-
-        /* divide stego-image into three matrix (RGB) */
-        int height = stegoImage.getHeight(), width = stegoImage.getWidth();
-        this.redMatrix2DDecimalArray = new int[height][width];
-        this.greenMatrix2DDecimalArray = new int[height][width];
-        this.blueMatrix2DDecimalArray = new int[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Color color = new Color(stegoImage.getRGB(x, y));
-                int red = color.getRed();
-                int green = color.getGreen();
-                int blue = color.getBlue();
-                this.redMatrix2DDecimalArray[y][x] = red;
-                this.greenMatrix2DDecimalArray[y][x] = green;
-                this.blueMatrix2DDecimalArray[y][x] = blue;
-            }
-        }
-
         /* convert RGB matrix to 1-D bit stream array */
         this.redMatrix1DBitStreamArray = new int[this.redMatrix2DDecimalArray.length * this.redMatrix2DDecimalArray[0].length * 8];
         this.greenMatrix1DBitStreamArray = new int[this.greenMatrix2DDecimalArray.length * this.greenMatrix2DDecimalArray[0].length * 8];
@@ -57,7 +32,7 @@ public class LSBDecoder {
         this.convert2DDecimalArrayTo1DBitStreamArray(this.greenMatrix2DDecimalArray, this.greenMatrix1DBitStreamArray);
         this.convert2DDecimalArrayTo1DBitStreamArray(this.blueMatrix2DDecimalArray, this.blueMatrix1DBitStreamArray);
 
-        /* convert secret key to 1-D bit strestegoImage = {BufferedImage@1133} "BufferedImage@7b1d7fff: type = 5 ColorModel: #pixelBits = 24 numComponents = 3 color space = java.awt.color.ICC_ColorSpace@2aae9190 transparency = 1 has alpha = false isAlphaPre = false ByteInterleavedRaster: width = 57 height = 42 #numDataElements 3 dataOff[0] = 2"… Show imageam array */
+        /* convert secret key to 1-D bit stegoImage = {BufferedImage@1133} "BufferedImage@7b1d7fff: type = 5 ColorModel: #pixelBits = 24 numComponents = 3 color space = java.awt.color.ICC_ColorSpace@2aae9190 transparency = 1 has alpha = false isAlphaPre = false ByteInterleavedRaster: width = 57 height = 42 #numDataElements 3 dataOff[0] = 2"… Show imageam array */
         this.secretKey1DBitStreamArray = new int[secretKey.length() * 8];
         this.convertStringTo1DBitStreamArray(secretKey, this.secretKey1DBitStreamArray);
 
