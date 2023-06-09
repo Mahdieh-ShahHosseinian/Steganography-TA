@@ -47,10 +47,6 @@ public class LSBEncoder {
                 int red = color.getRed();
                 int green = color.getGreen();
                 int blue = color.getBlue();
-//                int rgb = coverImage.getRGB(x, y);
-//                int red = (rgb >> 16) & 0xFF;
-//                int green = (rgb >> 8) & 0xFF;
-//                int blue = rgb & 0xFF;
                 this.redMatrix2DDecimalArray[y][x] = red;
                 this.greenMatrix2DDecimalArray[y][x] = green;
                 this.blueMatrix2DDecimalArray[y][x] = blue;
@@ -96,7 +92,6 @@ public class LSBEncoder {
                 int red = this.redMatrix2DDecimalArray[y][x];
                 int green = this.greenMatrix2DDecimalArray[y][x];
                 int blue = this.blueMatrix2DDecimalArray[y][x];
-//                int rgb = (red << 16) | (green << 8) | blue;
                 Color color = new Color(red, green, blue);
                 stegoImage.setRGB(x, y, color.getRGB());
             }
@@ -139,6 +134,8 @@ public class LSBEncoder {
         return binaryString;
     }
 
+    // 01110011 01110101 01110100
+    // bggggbgb ggbggbbb ggbbgbbg
     private void hideMessage() {
         int i = 0, secretKeyLength = this.secretKey1DBitStreamArray.length;
         int j = 7;
@@ -204,5 +201,18 @@ public class LSBEncoder {
         System.out.println(Arrays.toString(blueMatrix1DBitStreamArray));
         System.out.println();
     }
-}
 
+    //========== getters ==========
+
+    public int[][] getRedMatrix2DDecimalArray() {
+        return redMatrix2DDecimalArray;
+    }
+
+    public int[][] getGreenMatrix2DDecimalArray() {
+        return greenMatrix2DDecimalArray;
+    }
+
+    public int[][] getBlueMatrix2DDecimalArray() {
+        return blueMatrix2DDecimalArray;
+    }
+}
