@@ -1,15 +1,17 @@
 package com.example.lsbimagesteganographyusingsecretkey.impl;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class LSBEncoder {
-    private static String COVER_IMAGE_FILE_PATH;
-    private static String STEGO_IMAGE_FILE_PATH;
-    private static String MESSAGE;
-    private static String SECRET_KEY;
+    private final String coverImageFilePath;
+    private final String stegoImageFilePath;
+    private final String message;
+    private final String secretKey;
 
     private int[][] redMatrix2DDecimalArray;
     private int[][] greenMatrix2DDecimalArray;
@@ -23,15 +25,15 @@ public class LSBEncoder {
     private int[] secretKey1DBitStreamArray;
 
     public LSBEncoder(String coverImageFilePath, String stegoImageFilePath, String message, String secretKey) {
-        LSBEncoder.COVER_IMAGE_FILE_PATH = coverImageFilePath;
-        LSBEncoder.STEGO_IMAGE_FILE_PATH = stegoImageFilePath;
-        LSBEncoder.MESSAGE = message;
-        LSBEncoder.SECRET_KEY = secretKey;
+        this.coverImageFilePath = coverImageFilePath;
+        this.stegoImageFilePath = stegoImageFilePath;
+        this.message = message;
+        this.secretKey = secretKey;
     }
 
     public void hidingProcess() throws IOException {
         /* take cover-image */
-        File coverImageFile = new File(COVER_IMAGE_FILE_PATH);
+        File coverImageFile = new File(coverImageFilePath);
         BufferedImage coverImage = ImageIO.read(coverImageFile);
 
         /* divide cover-image into three matrix (RGB) */
@@ -41,10 +43,17 @@ public class LSBEncoder {
         this.blueMatrix2DDecimalArray = new int[height][width];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int rgb = coverImage.getRGB(x, y);
-                this.redMatrix2DDecimalArray[y][x] = (rgb >> 16) & 0xFF;
-                this.greenMatrix2DDecimalArray[y][x] = (rgb >> 8) & 0xFF;
-                this.blueMatrix2DDecimalArray[y][x] = rgb & 0xFF;
+                Color color = new Color(coverImage.getRGB(x, y));
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
+//                int rgb = coverImage.getRGB(x, y);
+//                int red = (rgb >> 16) & 0xFF;
+//                int green = (rgb >> 8) & 0xFF;
+//                int blue = rgb & 0xFF;
+                this.redMatrix2DDecimalArray[y][x] = red;
+                this.greenMatrix2DDecimalArray[y][x] = green;
+                this.blueMatrix2DDecimalArray[y][x] = blue;
             }
         }
 
@@ -57,12 +66,16 @@ public class LSBEncoder {
         this.convert2DDecimalArrayTo1DBitStreamArray(this.blueMatrix2DDecimalArray, this.blueMatrix1DBitStreamArray);
 
         /* convert message to 1-D bit stream array */
-        this.message1DBitStreamArray = new int[MESSAGE.length() * 8];
-        this.convertStringTo1DBitStreamArray(MESSAGE, this.message1DBitStreamArray);
+        this.message1DBitStreamArray = new int[message.length() * 8];
+        this.convertStringTo1DBitStreamArray(message, this.message1DBitStreamArray);
 
         /* convert secret key to 1-D bit stream array */
-        this.secretKey1DBitStreamArray = new int[SECRET_KEY.length() * 8];
-        this.convertStringTo1DBitStreamArray(SECRET_KEY, this.secretKey1DBitStreamArray);
+        this.secretKey1DBitStreamArray = new int[secretKey.length() * 8];
+        this.convertStringTo1DBitStreamArray(secretKey, this.secretKey1DBitStreamArray);
+
+        /* print */
+        System.out.println("BEFORE:");
+        this.print();
 
         /* for each bit of message: decision-making using XOR to choose where to hide */
         this.hideMessage();
@@ -71,20 +84,26 @@ public class LSBEncoder {
         this.update2DDecimalArrayUsing1DBitStreamArray(this.greenMatrix1DBitStreamArray, this.greenMatrix2DDecimalArray);
         this.update2DDecimalArrayUsing1DBitStreamArray(this.blueMatrix1DBitStreamArray, this.blueMatrix2DDecimalArray);
 
+        /* print */
+        System.out.println("AFTER:");
+        this.print();
+
         /* create stego-image */
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage stegoImage = new BufferedImage(width, height, coverImage.getType());
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int rgb = this.redMatrix2DDecimalArray[y][x];
-                rgb = (rgb << 8) + this.greenMatrix2DDecimalArray[y][x];
-                rgb = (rgb << 8) + this.blueMatrix2DDecimalArray[y][x];
-                image.setRGB(x, y, rgb);
+                int red = this.redMatrix2DDecimalArray[y][x];
+                int green = this.greenMatrix2DDecimalArray[y][x];
+                int blue = this.blueMatrix2DDecimalArray[y][x];
+//                int rgb = (red << 16) | (green << 8) | blue;
+                Color color = new Color(red, green, blue);
+                stegoImage.setRGB(x, y, color.getRGB());
             }
         }
 
-        File stegoImageFile = new File(STEGO_IMAGE_FILE_PATH);
-        ImageIO.write(image, "jpg", stegoImageFile);
+        File stegoImageFile = new File(stegoImageFilePath);
+        ImageIO.write(stegoImage, "jpg", stegoImageFile);
     }
 
     private void convert2DDecimalArrayTo1DBitStreamArray(int[][] twoDDecimalArray, int[] oneDBitStreamArray) {
@@ -122,19 +141,19 @@ public class LSBEncoder {
 
     private void hideMessage() {
         int i = 0, secretKeyLength = this.secretKey1DBitStreamArray.length;
-        int j = 1;
+        int j = 7;
         for (int message1Bit : this.message1DBitStreamArray) {
-            if (i + 1 == secretKeyLength) {
+            if (i == secretKeyLength) {
                 i = 0;
             }
             int secretKeyBit = this.secretKey1DBitStreamArray[i++];
-            int redLSB = this.redMatrix1DBitStreamArray[8 * j - 1];
+            int redLSB = this.redMatrix1DBitStreamArray[j];
             int xor = secretKeyBit ^ redLSB;
             switch (xor) {
-                case 1 -> this.greenMatrix1DBitStreamArray[8 * j - 1] = message1Bit;
-                case 0 -> this.blueMatrix1DBitStreamArray[8 * j - 1] = message1Bit;
+                case 1 -> this.greenMatrix1DBitStreamArray[j] = message1Bit;
+                case 0 -> this.blueMatrix1DBitStreamArray[j] = message1Bit;
             }
-            j++;
+            j += 8;
         }
     }
 
@@ -144,17 +163,46 @@ public class LSBEncoder {
         for (int i = 0; i < oneDBitStreamArray.length; i++) {
             eightBits.append(oneDBitStreamArray[i]);
             if ((i + 1) % 8 == 0) {
-                if (k + 1 == twoDDecimalArrayWidth) {
+                if (k == twoDDecimalArrayWidth) {
                     j++;
-                }
-                if (k + 1 == twoDDecimalArrayHeight) {
                     k = 0;
-                } else {
-                    k++;
                 }
-                twoDDecimalArray[j][k] = Integer.parseInt(String.valueOf(eightBits), 2);
+                twoDDecimalArray[j][k++] = Integer.parseInt(String.valueOf(eightBits), 2);
                 eightBits = new StringBuilder();
             }
         }
     }
+
+    public void print() {
+        System.out.println("Red Matrix 2-D Decimal Array: [" + redMatrix2DDecimalArray.length + "][" + redMatrix2DDecimalArray[0].length + "]");
+        System.out.println(Arrays.deepToString(redMatrix2DDecimalArray));
+        System.out.println();
+        System.out.println("Green Matrix 2-D Decimal Array: [" + greenMatrix2DDecimalArray.length + "][" + greenMatrix2DDecimalArray[0].length + "]");
+        System.out.println(Arrays.deepToString(greenMatrix2DDecimalArray));
+        System.out.println();
+        System.out.println("Blue Matrix 2-D Decimal Array: [" + blueMatrix2DDecimalArray.length + "][" + blueMatrix2DDecimalArray[0].length + "]");
+        System.out.println(Arrays.deepToString(blueMatrix2DDecimalArray));
+        System.out.println();
+
+        System.out.println("Secret Key 1-D Bit Stream Array: length=" + secretKey1DBitStreamArray.length);
+        System.out.println(Arrays.toString(secretKey1DBitStreamArray));
+        System.out.println();
+
+        System.out.println("Message 1-D Bit Stream Array: length=" + message1DBitStreamArray.length);
+        System.out.println(Arrays.toString(message1DBitStreamArray));
+        System.out.println();
+
+        System.out.println("Red Matrix 1-D Bit Stream Array: length=" + redMatrix1DBitStreamArray.length);
+        System.out.println(Arrays.toString(redMatrix1DBitStreamArray));
+        System.out.println();
+
+        System.out.println("Green Matrix 1-D Bit Stream Array: length=" + greenMatrix1DBitStreamArray.length);
+        System.out.println(Arrays.toString(greenMatrix1DBitStreamArray));
+        System.out.println();
+
+        System.out.println("Blue Matrix 1-D Bit Stream Array: length=" + blueMatrix1DBitStreamArray.length);
+        System.out.println(Arrays.toString(blueMatrix1DBitStreamArray));
+        System.out.println();
+    }
 }
+
