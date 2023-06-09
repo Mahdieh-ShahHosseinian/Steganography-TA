@@ -15,22 +15,21 @@ public class Application {
                 message,
                 secretKey
         );
-
-        try {
-            lsbEncoder.hidingProcess();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        lsbEncoder.hidingProcess();
 
         LSBDecoder lsbDecoder = new LSBDecoder(
                 STEGO_IMAGE_FILE_PATH,
                 message.length(),
                 secretKey
         );
+        sendNecessaryData(lsbEncoder, lsbDecoder);
+
+        System.out.println(lsbDecoder.recoveryProcess());
+    }
+
+    private static void sendNecessaryData(LSBEncoder lsbEncoder, LSBDecoder lsbDecoder) {
         lsbDecoder.setRedMatrix2DDecimalArray(lsbEncoder.getRedMatrix2DDecimalArray());
         lsbDecoder.setGreenMatrix2DDecimalArray(lsbEncoder.getGreenMatrix2DDecimalArray());
         lsbDecoder.setBlueMatrix2DDecimalArray(lsbEncoder.getBlueMatrix2DDecimalArray());
-
-        System.out.println(lsbDecoder.recoveryProcess());
     }
 }

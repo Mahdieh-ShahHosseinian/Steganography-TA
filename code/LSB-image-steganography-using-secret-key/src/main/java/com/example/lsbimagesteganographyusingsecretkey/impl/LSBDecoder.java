@@ -28,26 +28,26 @@ public class LSBDecoder {
     }
 
     public String recoveryProcess() throws IOException {
-//        /* take stego-image */
-//        File stegoImageFile = new File(stegoImageFilePath);
-//        BufferedImage stegoImage = ImageIO.read(stegoImageFile);
-//
-//        /* divide stego-image into three matrix (RGB) */
-//        int height = stegoImage.getHeight(), width = stegoImage.getWidth();
-//        this.redMatrix2DDecimalArray = new int[height][width];
-//        this.greenMatrix2DDecimalArray = new int[height][width];
-//        this.blueMatrix2DDecimalArray = new int[height][width];
-//        for (int y = 0; y < height; y++) {
-//            for (int x = 0; x < width; x++) {
-//                Color color = new Color(stegoImage.getRGB(x, y));
-//                int red = color.getRed();
-//                int green = color.getGreen();
-//                int blue = color.getBlue();
-//                this.redMatrix2DDecimalArray[y][x] = red;
-//                this.greenMatrix2DDecimalArray[y][x] = green;
-//                this.blueMatrix2DDecimalArray[y][x] = blue;
-//            }
-//        }
+        /* take stego-image */
+        File stegoImageFile = new File(stegoImageFilePath);
+        BufferedImage stegoImage = ImageIO.read(stegoImageFile);
+
+        /* divide stego-image into three matrix (RGB) */
+        int height = stegoImage.getHeight(), width = stegoImage.getWidth();
+        this.redMatrix2DDecimalArray = new int[height][width];
+        this.greenMatrix2DDecimalArray = new int[height][width];
+        this.blueMatrix2DDecimalArray = new int[height][width];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Color color = new Color(stegoImage.getRGB(x, y));
+                int red = color.getRed();
+                int green = color.getGreen();
+                int blue = color.getBlue();
+                this.redMatrix2DDecimalArray[y][x] = red;
+                this.greenMatrix2DDecimalArray[y][x] = green;
+                this.blueMatrix2DDecimalArray[y][x] = blue;
+            }
+        }
 
         /* convert RGB matrix to 1-D bit stream array */
         this.redMatrix1DBitStreamArray = new int[this.redMatrix2DDecimalArray.length * this.redMatrix2DDecimalArray[0].length * 8];
