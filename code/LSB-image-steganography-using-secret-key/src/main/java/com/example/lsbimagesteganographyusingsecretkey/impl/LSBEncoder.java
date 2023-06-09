@@ -54,36 +54,36 @@ public class LSBEncoder {
                 }
             }
 
-        /* convert RGB matrix to 1-D bit stream array */
-        this.redMatrix1DBitStreamArray = new int[this.redMatrix2DDecimalArray.length * this.redMatrix2DDecimalArray[0].length * 8];
-        this.greenMatrix1DBitStreamArray = new int[this.greenMatrix2DDecimalArray.length * this.greenMatrix2DDecimalArray[0].length * 8];
-        this.blueMatrix1DBitStreamArray = new int[this.blueMatrix2DDecimalArray.length * this.blueMatrix2DDecimalArray[0].length * 8];
-        this.convert2DDecimalArrayTo1DBitStreamArray(this.redMatrix2DDecimalArray, this.redMatrix1DBitStreamArray);
-        this.convert2DDecimalArrayTo1DBitStreamArray(this.greenMatrix2DDecimalArray, this.greenMatrix1DBitStreamArray);
-        this.convert2DDecimalArrayTo1DBitStreamArray(this.blueMatrix2DDecimalArray, this.blueMatrix1DBitStreamArray);
+            /* convert RGB matrix to 1-D bit stream array */
+            this.redMatrix1DBitStreamArray = new int[this.redMatrix2DDecimalArray.length * this.redMatrix2DDecimalArray[0].length * 8];
+            this.greenMatrix1DBitStreamArray = new int[this.greenMatrix2DDecimalArray.length * this.greenMatrix2DDecimalArray[0].length * 8];
+            this.blueMatrix1DBitStreamArray = new int[this.blueMatrix2DDecimalArray.length * this.blueMatrix2DDecimalArray[0].length * 8];
+            this.convert2DDecimalArrayTo1DBitStreamArray(this.redMatrix2DDecimalArray, this.redMatrix1DBitStreamArray);
+            this.convert2DDecimalArrayTo1DBitStreamArray(this.greenMatrix2DDecimalArray, this.greenMatrix1DBitStreamArray);
+            this.convert2DDecimalArrayTo1DBitStreamArray(this.blueMatrix2DDecimalArray, this.blueMatrix1DBitStreamArray);
 
-        /* convert message to 1-D bit stream array */
-        this.message1DBitStreamArray = new int[message.length() * 8];
-        this.convertStringTo1DBitStreamArray(message, this.message1DBitStreamArray);
+            /* convert message to 1-D bit stream array */
+            this.message1DBitStreamArray = new int[message.length() * 8];
+            this.convertStringTo1DBitStreamArray(message, this.message1DBitStreamArray);
 
-        /* convert secret key to 1-D bit stream array */
-        this.secretKey1DBitStreamArray = new int[secretKey.length() * 8];
-        this.convertStringTo1DBitStreamArray(secretKey, this.secretKey1DBitStreamArray);
+            /* convert secret key to 1-D bit stream array */
+            this.secretKey1DBitStreamArray = new int[secretKey.length() * 8];
+            this.convertStringTo1DBitStreamArray(secretKey, this.secretKey1DBitStreamArray);
 
-        /* print */
-        System.out.println("BEFORE:");
-        this.print();
+            /* print */
+            System.out.println("BEFORE:");
+            this.print();
 
-        /* for each bit of message: decision-making using XOR to choose where to hide */
-        this.hideMessage();
+            /* for each bit of message: decision-making using XOR to choose where to hide */
+            this.hideMessage();
 
-        /* convert 1-D bit stream array to 2-D decimal array */
-        this.update2DDecimalArrayUsing1DBitStreamArray(this.greenMatrix1DBitStreamArray, this.greenMatrix2DDecimalArray);
-        this.update2DDecimalArrayUsing1DBitStreamArray(this.blueMatrix1DBitStreamArray, this.blueMatrix2DDecimalArray);
+            /* convert 1-D bit stream array to 2-D decimal array */
+            this.update2DDecimalArrayUsing1DBitStreamArray(this.greenMatrix1DBitStreamArray, this.greenMatrix2DDecimalArray);
+            this.update2DDecimalArrayUsing1DBitStreamArray(this.blueMatrix1DBitStreamArray, this.blueMatrix2DDecimalArray);
 
-        /* print */
-        System.out.println("AFTER:");
-        this.print();
+            /* print */
+            System.out.println("AFTER:");
+            this.print();
 
             /* create stego-image */
             BufferedImage stegoImage = new BufferedImage(width, height, coverImage.getType());
